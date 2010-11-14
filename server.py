@@ -8,8 +8,7 @@ HOST = ''
 PORT = 50000
 SIZE = 1024
 
-threads = []
-
+nodes = {}
 
 class NeonClient(threading.Thread):
 	"""Each Neon client is connected to the launch node via a socket thread"""
@@ -26,18 +25,47 @@ class NeonClient(threading.Thread):
 	def run(self):
 		"""Receive information on the socket"""
 
-		while self.on:
-			data = self.conn.recv(SIZE)
+		try:
+			while self.on:
+				data = self.conn.recv(SIZE).split(":", 1)
 
-			if data == "stop":
-				self.on = False
-				self.conn.close()
+
+				# Command for another machine				
+				if len(data) == 2:
+					self.send_to_node(*data)
+					self.conn.send("ok")
+
+
+
+				# Command for server
+				else:
+					self.conn.send(data[0])
+
+					if data[0] == "stop":
+						self.on = False
+		except Exception, e:
+			print e
+
+		self.conn.close()
+		print "%s:%s closed connection" % self.address
+
+
+	def send_to_node(self, node, command):
+		"""Send a command to another node
+
+           node is the hostname of the other machine
+		"""
+		ip = socket.gethostbyname(node)
+
+		if ip in nodes:
+			print nodes[ip]
+		else:
+			print "ERROR: %s not connected" % node		
 
 
 def main(host, port):
 	"""Launcher main loop"""
 
-	nodes = []
 
 	# Initialize server socket
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,10 +83,11 @@ def main(host, port):
 			client = NeonClient(client, address)
 			client.start()
 			
-			nodes.append(client)
+			nodes[address[0]] = client
 	except:
+		s.close()
 		print
-		print "Shutting down neon..."
+		print "Shutting down Neon..."
 
 
 if __name__ == "__main__":
