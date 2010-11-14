@@ -12,10 +12,10 @@ s.connect((HOST, PORT))
 
 try:
 	while 1:
-		s.send("cluster-5.local:gl something")
+		s.send("cluster-5.local:print 'hello'\n")
   		data = s.recv(1024)
-  		print 'Received' , repr(data)
+  		#print 'Received' , repr(data)
 except:
-	s.send("stop")
+	s.send("stop\n")
 
 s.close()
