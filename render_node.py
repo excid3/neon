@@ -44,11 +44,12 @@ glutInitWindowSize(800, 600)
 glutCreateWindow("WUT")
 glutDisplayFunc(display)
 
+
 # Use timer instead
 glutIdleFunc(idle)
 
 threading.Thread(target=get_updates).start()
 
 glutMainLoop()
-
+print "ohai"
 updates = False
