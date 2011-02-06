@@ -4,16 +4,15 @@ import platform
 import pyglet
 import random
 
-import node
+import neon
 
-SCREEN_X, SCREEN_Y = 0, 1024
+SCREEN_X, SCREEN_Y = 0, 0
 
 window = pyglet.window.Window(fullscreen=True)
 # Used for configuring the location of the screen rendering
 pyglet.gl.glTranslatef(SCREEN_X, -SCREEN_Y, 0)
 
-
-class NeonApp:
+class NeonApp(neon.UDPHandler):
     def __init__(self, title="Untitled Window", size=(800, 600), location=(0,0)):
         self.title = pyglet.text.Label(title, font_name="Arial", font_size=16, anchor_x="left", anchor_y="top")
         self.w, self.h = size
@@ -26,6 +25,10 @@ class NeonApp:
         self.text.x = self.x
         self.text.y = self.y +self.h
         self.direction = 0
+        
+    def handle(self):
+        print "OHAI"
+        super(NeonApp, self).handle()
         
     def update(self, dt):
         self.dt = dt
@@ -164,4 +167,4 @@ pyglet.clock.schedule_interval(update, 1/120.0)
     
 NeonApp("Window Title")
 NeonApp("Second Window Title", (600, 200), (1600, 400))
-node.start_server(pyglet.app.run)
+neon.start_server(pyglet.app.run)
