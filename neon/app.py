@@ -18,7 +18,11 @@ class NeonApp:
         self.set_location(*location)
         self.dt = 0
         self.widgets = []
-   
+        
+        if hasattr(self, "on_init"):
+            self.on_init()
+
+    def on_init(self):
         self.text = pyglet.text.Label("Screensaver", color=(255,0,0,255), anchor_x="center", anchor_y="center")
         self.text.x = self.x
         self.text.y = self.y +self.h
@@ -28,7 +32,7 @@ class NeonApp:
     def update(self, dt):
         self.dt = dt
         
-    def draw_updates(self):
+    def on_draw(self):
         
         move = 1
 
@@ -100,4 +104,5 @@ class NeonApp:
             self.x+self.w, self.y)
         )
 
-        self.draw_updates()
+        if hasattr(self, "on_draw"):
+            self.on_draw()
