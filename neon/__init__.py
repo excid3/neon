@@ -9,12 +9,14 @@ from app import NeonApp
 from network import ThreadedUDPServer, UDPHandler
 
 
-class RenderNode(UDPHandler):
+class RenderNode:
+    queue = []
+
     def __init__(self, location, size):
         self.x, self.y = location
         self.w, self.h = size
         
-        self.running_apps = {}
+        self.running_apps = []
         self.focused_app = None
 
         self.window = pyglet.window.Window(fullscreen=True)
@@ -27,16 +29,16 @@ class RenderNode(UDPHandler):
         self.set_callbacks()
 
     def update(self, dt):
-        for app in self.running_apps.values():
+        for name, app in self.running_apps:
             app.update(dt)
 
     def new_app(self, title="Untitled Window", size=(800, 600), location=(0,0)):
-        self.running_apps[title] = NeonApp(self, title, size, location)
+        self.running_apps.append((title, NeonApp(self, title, size, location)))
     
     def start_server(self):
         
         HOST, PORT = "", 9999
-        server = ThreadedUDPServer((HOST, PORT), self) # Issue here, we can't access the queue variable
+        server = ThreadedUDPServer((HOST, PORT), UDPHandler) # Issue here, we can't access the queue variable
         server_thread = threading.Thread(target=server.serve_forever)
         
         server_thread.setDaemon(True)
@@ -71,34 +73,43 @@ class RenderNode(UDPHandler):
             self.background.draw()
 
         # Draw applications    
-        for app in self.running_apps.values():
+        for name, app in self.running_apps:
             app._draw()
 
         # Network shapes
-        print self.queue
         for item in self.queue:
             # network items
             title, shape, args = item.split(":")
             
-            print self.running_apps[title]
-
         self.queue = []
 
 
 
     def on_mouse_press(self, x, y, button, modifiers):
 
-        for app in reversed(self.running_apps.values()):
+        for name, app in reversed(self.running_apps):
+
+            # Find the app that is currently being focused
             if app.x <= x <= app.x+app.w and \
-               app.y+app.h <= y <= app.y+app.h+24:
-               self.focused_app = app
+                app.y+app.h <= y <= app.y+app.h+24:
+                self.focused_app = app
 
-
+                # Move item to end of list, this way it's draw on top
+                self.running_apps.remove((name, app))
+                self.running_apps.append((name, app))
+                
+               
     def on_mouse_release(self, x, y, button, modifiers):
         self.focused_app = None
 
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
 
+        # If an app is focused, let's drag it and the widgets inside of it
         if self.focused_app:
-            self.focused_app.set_location(self.focused_app.x+dx, self.focused_app.y+dy)
+        
+            self.focused_app.set_location(self.focused_app.x + dx, self.focused_app.y + dy)
+            
+            for widget in self.focused_app.widgets:
+                widget.x = widget.x + dx
+                widget.y = widget.y + dy

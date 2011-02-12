@@ -5,7 +5,6 @@ class UDPHandler(SocketServer.BaseRequestHandler):
     """
     This class is for handling any incoming messages
     """
-    queue = []
     
     def handle(self):
         data = self.request[0].strip()
@@ -14,7 +13,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         print "%s wrote:" % self.client_address[0]
         print repr(data)
         
-        self.queue.append(data)
+        #self.queue.append(data)
         
         socket.sendto("Okay", self.client_address)
         

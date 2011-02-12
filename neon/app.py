@@ -17,10 +17,12 @@ class NeonApp:
         self.w, self.h = size
         self.set_location(*location)
         self.dt = 0
+        self.widgets = []
    
         self.text = pyglet.text.Label("Screensaver", color=(255,0,0,255), anchor_x="center", anchor_y="center")
         self.text.x = self.x
         self.text.y = self.y +self.h
+        self.widgets.append(self.text)
         self.direction = 0
         
     def update(self, dt):
