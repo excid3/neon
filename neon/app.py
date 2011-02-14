@@ -3,13 +3,6 @@ import pyglet
 import neon
 
 
-def draw_polygon(dimensions=(), format="v2i", amount=4, colors=(1.0,1.0,1.0)):
-    pyglet.gl.glColor3f(*colors)
-    pyglet.graphics.draw(amount, pyglet.gl.GL_POLYGON,
-        (format, dimensions)
-    )
-
-
 class NeonApp:
     def __init__(self, parent, title="Untitled Window", size=(800, 600), location=(0,0)):
         self.parent = parent
@@ -85,24 +78,34 @@ class NeonApp:
         
     def _draw(self):
         # Draw the window title
-        draw_polygon((
+        self.draw_polygon((
             self.x, self.y+self.h,
             self.x, self.y+self.h+24,
             self.x+self.w, self.y+self.h+24,
             self.x+self.w, self.y+self.h),
-            colors=(0.1, 0.1, 0.1)
+            color=(0.1, 0.1, 0.1)
         )
         self.title.x = self.x+4
         self.title.y = self.y+self.h+24
         self.title.draw()
         
         # Draw the window itself
-        draw_polygon((
+        self.draw_polygon((
             self.x, self.y,
             self.x, self.y+self.h,
             self.x+self.w, self.y+self.h,
             self.x+self.w, self.y)
         )
 
-        if hasattr(self, "on_draw"):
-            self.on_draw()
+    def draw_polygon(self, points, format="v2i", amount=4, color=(1.0,1.0,1.0)):
+        self.draw_object(pyglet.gl.GL_POLYGON, points, format, amount, color)
+        
+    def draw_line(self, points, format="v2i", amount=2, color=(1.0, 1.0, 1.0)):
+        self.draw_object(pyglet.gl.GL_LINES, points, format, amount, color)
+        
+    def draw_object(self, shape, points, format, amount, color):
+        pyglet.gl.glColor3f(*color)
+        pyglet.graphics.draw(amount, shape,
+            (format, points)
+        )
+        

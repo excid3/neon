@@ -5,13 +5,11 @@ import pyglet
 import threading
 
 import neon
+import network
 from app import NeonApp
-from network import ThreadedUDPServer, UDPHandler
 
 
 class RenderNode:
-    queue = []
-
     def __init__(self, location, size):
         self.x, self.y = location
         self.w, self.h = size
@@ -19,14 +17,14 @@ class RenderNode:
         self.running_apps = []
         self.focused_app = None
 
-        self.window = pyglet.window.Window(fullscreen=True)
 
         # Used for configuring the location of the screen rendering
+        self.window = pyglet.window.Window(fullscreen=True)
         pyglet.gl.glTranslatef(self.x, -self.y, 0)
         
         pyglet.clock.schedule_interval(self.update, 1/120.0)
-        
         self.set_callbacks()
+
 
     def update(self, dt):
         for name, app in self.running_apps:
@@ -35,10 +33,11 @@ class RenderNode:
     def new_app(self, title="Untitled Window", size=(800, 600), location=(0,0)):
         self.running_apps.append((title, NeonApp(self, title, size, location)))
     
+    
     def start_server(self):
         
         HOST, PORT = "", 9999
-        server = ThreadedUDPServer((HOST, PORT), UDPHandler) # Issue here, we can't access the queue variable
+        server = network.ThreadedUDPServer((HOST, PORT), network.UDPHandler) # Issue here, we can't access the queue variable
         server_thread = threading.Thread(target=server.serve_forever)
         
         server_thread.setDaemon(True)
@@ -77,13 +76,30 @@ class RenderNode:
             app._draw()
 
         # Network shapes
-        for item in self.queue:
+        for item in network.queue:
             # network items
-            title, shape, args = item.split(":")
+            window, command, args = item.split(":", 2)
+            window, command, args = window.strip(), command.strip(), eval(args)
+
+            for title, app in self.running_apps:
+                if title == window:
+                    if hasattr(app, command):
+                    
+                        pts = []
+                        for x,y in zip(args["points"][::2], args["points"][1::2]):
+                            pts.append(x+app.x)
+                            pts.append(y+app.y)
+                        args["points"] = pts
+                        
+                        getattr(app, command)(**args)
+
+        
+        network.queue = []
+        
+        for name, app in self.running_apps:
+            if hasattr(app, "on_draw"): 
+                app.on_draw()
             
-        self.queue = []
-
-
 
     def on_mouse_press(self, x, y, button, modifiers):
 
