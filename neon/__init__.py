@@ -75,14 +75,16 @@ class RenderNode:
         for name, app in self.running_apps:
             app._draw()
 
-        # Network shapes
-        for item in network.queue:
-            # network items
-            window, command, args = item.split(":", 2)
-            window, command, args = window.strip(), command.strip(), eval(args)
+            if hasattr(app, "on_draw"): 
+                app.on_draw()
 
-            for title, app in self.running_apps:
-                if title == window:
+            # Network shapes
+            for item in network.queue:
+                # network items
+                window, command, args = item.split(":", 2)
+                window, command, args = window.strip(), command.strip(), eval(args)
+
+                if name == window:
                     if hasattr(app, command):
                     
                         pts = []
@@ -92,13 +94,8 @@ class RenderNode:
                         args["points"] = pts
                         
                         getattr(app, command)(**args)
-
-        
+    
         network.queue = []
-        
-        for name, app in self.running_apps:
-            if hasattr(app, "on_draw"): 
-                app.on_draw()
             
 
     def on_mouse_press(self, x, y, button, modifiers):
