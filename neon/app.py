@@ -1,3 +1,4 @@
+import platform
 import pyglet
 
 import neon
@@ -7,10 +8,17 @@ class NeonApp:
     def __init__(self, parent, title="Untitled Window", size=(800, 600), location=(0,0)):
         self.parent = parent
         self.title = pyglet.text.Label(title, font_name="Arial", font_size=16, anchor_x="left", anchor_y="top")
+        self.title_text = title
         self.w, self.h = size
         self.set_location(*location)
         self.dt = 0
         self.widgets = []
+        
+        self.network_draw('%s: new: {"size":%s, "location":%s }' % \
+                          (self.title_text,
+                           str(size),
+                           str(location))
+                         )
         
         if hasattr(self, "on_init"):
             self.on_init()
@@ -69,7 +77,7 @@ class NeonApp:
             if self.text.y >= self.y+self.h:
                 self.direction = 2
         
-        self.text.draw()
+        #self.text.draw()
 
     def set_location(self, x, y):
         self.x = x
@@ -99,7 +107,7 @@ class NeonApp:
 
     def draw_polygon(self, points, format="v2i", amount=4, color=(1.0,1.0,1.0)):
         self.draw_object(pyglet.gl.GL_POLYGON, points, format, amount, color)
-        
+
     def draw_line(self, points, format="v2i", amount=2, color=(1.0, 1.0, 1.0)):
         self.draw_object(pyglet.gl.GL_LINES, points, format, amount, color)
         
@@ -108,4 +116,17 @@ class NeonApp:
         pyglet.graphics.draw(amount, shape,
             (format, points)
         )
+        #self.network_draw('%s: draw_object: {"shape":%s, "points":%s, "format":%s, "amount":%i, "color":%s}' % \
+        #                  (self.title_text,
+        #                   shape,
+        #                   str(points),
+        #                   '"%s"' % format,
+        #                   amount,
+        #                   str(color))
+        #                 )
+        
+    def network_draw(self, message):
+        for host in self.parent.nodes.keys():
+            if host != platform.node()+".local":
+                neon.network.send_network_data(message, (host, 9999))
         

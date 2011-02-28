@@ -1,7 +1,9 @@
 import threading
 import SocketServer
+import socket
 
 queue = []
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 class UDPHandler(SocketServer.BaseRequestHandler):
     """
@@ -18,7 +20,13 @@ class UDPHandler(SocketServer.BaseRequestHandler):
         for item in data.split("\n"):
             queue.append(item)
         
+        #print queue
         socket.sendto("Okay", self.client_address)
         
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
     pass
+    
+
+def send_network_data(data, host):
+    #print host, data
+    sock.sendto(data + "\n", host)

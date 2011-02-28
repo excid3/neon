@@ -9,10 +9,17 @@ import network
 from app import NeonApp
 
 
+HOST, PORT = "", 9999
+
+
 class RenderNode:
-    def __init__(self, location, size):
-        self.x, self.y = location
-        self.w, self.h = size
+    def __init__(self, nodes):
+        self.nodes = nodes
+        
+        name = platform.node() + ".local"
+    
+        self.x, self.y = nodes[name]["location"]
+        self.w, self.h = nodes[name]["size"]
         
         self.running_apps = []
         self.focused_app = None
@@ -36,7 +43,6 @@ class RenderNode:
     
     def start_server(self):
         
-        HOST, PORT = "", 9999
         server = network.ThreadedUDPServer((HOST, PORT), network.UDPHandler) # Issue here, we can't access the queue variable
         server_thread = threading.Thread(target=server.serve_forever)
         
@@ -73,13 +79,14 @@ class RenderNode:
 
         # Draw applications    
         for name, app in self.running_apps:
-            app._draw()
+            app._draw() # Draw the window
 
             if hasattr(app, "on_draw"): 
-                app.on_draw()
+                app.on_draw() # Draw custom content
 
             # Network shapes
             for item in network.queue:
+
                 # network items
                 window, command, args = item.split(":", 2)
                 window, command, args = window.strip(), command.strip(), eval(args)
