@@ -3,6 +3,7 @@
 from neon import RenderNode
 
 from graph_app import GraphApp
+from screensaver_app import ScreensaverApp
 
 nodes = { 
           "cluster-1.local": { "location": (0, 0),    "size": (2560, 1025) },
@@ -17,7 +18,7 @@ r = RenderNode(nodes)
 
 import platform
 if platform.node() == "cluster-3":
-    r.new_app("Window Title", app_type=GraphApp)
-    r.new_app("Second Window Title", (600, 200), (1600, 400))
+    r.new_app("Network Graph", app_type=GraphApp)
+    r.new_app("Screensaver Example", (600, 200), (1600, 400), app_type=ScreensaverApp)
 
 r.start_server()

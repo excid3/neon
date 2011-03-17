@@ -3,7 +3,6 @@ import pyglet
 
 import neon
 
-
 class NeonApp:
     def __init__(self, parent, title="Untitled Window", size=(800, 600), location=(0,0)):
         self.parent = parent
@@ -23,61 +22,8 @@ class NeonApp:
         if hasattr(self, "on_init"):
             self.on_init()
 
-    def on_init(self):
-        self.text = pyglet.text.Label("Screensaver", color=(255,0,0,255), anchor_x="center", anchor_y="center")
-        self.text.x = self.x
-        self.text.y = self.y +self.h
-        self.widgets.append(self.text)
-        self.direction = 0
-        
     def update(self, dt):
         self.dt = dt
-        
-    def on_draw(self):
-        
-        move = 1
-
-        if self.direction == 0: #up/right
-            self.text.x += move
-            self.text.y += move
-            
-            if self.text.x >= self.x+self.w:
-                self.direction = 3
-            
-            if self.text.y >= self.y+self.h:
-                self.direction = 1
-
-        elif self.direction == 1: #down/right
-            self.text.x += move
-            self.text.y -= move
-            
-            if self.text.x >= self.x+self.w:
-                self.direction = 2
-            
-            if self.text.y < self.y:
-                self.direction = 0
-            
-        elif self.direction == 2: #down/left
-            self.text.x -= move
-            self.text.y -= move
-
-            if self.text.x < self.x:
-                self.direction = 1
-            
-            if self.text.y < self.y:
-                self.direction = 3
-            
-        elif self.direction == 3: #up/left
-            self.text.x -= move
-            self.text.y += move
-            
-            if self.text.x < self.x:
-                self.direction = 0
-            
-            if self.text.y >= self.y+self.h:
-                self.direction = 2
-        
-        self.text.draw()
 
     def set_location(self, x, y):
         self.x = x

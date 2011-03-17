@@ -25,6 +25,7 @@ class UDPHandler(SocketServer.BaseRequestHandler):
             data = (command,args)
             
             # Append it to the dictionary
+            print window, data
             if window in queue: queue[window].append(data)
             else:               queue[window] = [data]
         
@@ -36,5 +37,4 @@ class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
     
 
 def send_network_data(data, host):
-    #print host, data
     sock.sendto(data + "\n", host)
