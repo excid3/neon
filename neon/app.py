@@ -77,7 +77,7 @@ class NeonApp:
             if self.text.y >= self.y+self.h:
                 self.direction = 2
         
-        #self.text.draw()
+        self.text.draw()
 
     def set_location(self, x, y):
         self.x = x

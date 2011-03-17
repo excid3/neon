@@ -2,7 +2,7 @@ import socket
 import sys
 import random
 
-HOST, PORT = 'cluster-5.local', 9999
+HOST, PORT = 'cluster-3.local', 9999
 data = 'Window Title: draw_line: {"points":(%i,0, 0,%i), "color":(0,0,0,255)}'
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

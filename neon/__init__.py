@@ -8,7 +8,6 @@ import neon
 import network
 from app import NeonApp
 
-
 HOST, PORT = "", 9999
 
 
@@ -37,8 +36,8 @@ class RenderNode:
         for name, app in self.running_apps:
             app.update(dt)
 
-    def new_app(self, title="Untitled Window", size=(800, 600), location=(0,0)):
-        self.running_apps.append((title, NeonApp(self, title, size, location)))
+    def new_app(self, title="Untitled Window", size=(800, 600), location=(0,0), app_type=NeonApp):
+        self.running_apps.append((title, app_type(self, title, size, location)))
     
     
     def start_server(self):
@@ -85,24 +84,22 @@ class RenderNode:
                 app.on_draw() # Draw custom content
 
             # Network shapes
-            for item in network.queue:
+            if name in network.queue:
+                for command, args in network.queue[name]:
 
-                # network items
-                window, command, args = item.split(":", 2)
-                window, command, args = window.strip(), command.strip(), eval(args)
-
-                if name == window:
+                    # Can we run this command on the application?
                     if hasattr(app, command):
-                    
-                        pts = []
-                        for x,y in zip(args["points"][::2], args["points"][1::2]):
-                            pts.append(x+app.x)
-                            pts.append(y+app.y)
-                        args["points"] = pts
+
+                        if 'points' in args:
+                            pts = []
+                            for x,y in zip(args["points"][::2], args["points"][1::2]):
+                                pts.append(x+app.x)
+                                pts.append(y+app.y)
+                            args["points"] = pts
                         
                         getattr(app, command)(**args)
     
-        network.queue = []
+        network.queue.clear()
             
 
     def on_mouse_press(self, x, y, button, modifiers):
