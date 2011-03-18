@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import platform
+
 from neon import RenderNode
 
 from graph_app import GraphApp
@@ -16,9 +18,8 @@ nodes = {
 
 r = RenderNode(nodes)
 
-import platform
 if platform.node() == "cluster-3":
     r.new_app("Network Graph", app_type=GraphApp)
-    r.new_app("Screensaver Example", (600, 200), (1600, 400), app_type=ScreensaverApp)
+    r.new_app("Screensaver Example", (600, 1200), (1600, 400), app_type=ScreensaverApp)
 
 r.start_server()

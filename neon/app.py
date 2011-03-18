@@ -5,19 +5,20 @@ import neon
 
 class NeonApp:
     def __init__(self, parent, title="Untitled Window", size=(800, 600), location=(0,0)):
-        self.parent = parent
-        self.title = pyglet.text.Label(title, font_name="Arial", font_size=16, anchor_x="left", anchor_y="top")
+        #self.parent = parent
+        self.title = None#pyglet.text.Label(title, font_name="Arial", font_size=16, anchor_x="left", anchor_y="top")
         self.title_text = title
         self.w, self.h = size
         self.set_location(*location)
         self.dt = 0
         self.widgets = []
         
-        self.network_draw('%s: new: {"size":%s, "location":%s }' % \
-                          (self.title_text,
-                           str(size),
-                           str(location))
-                         )
+        #self.send_app_config()
+        #self.network_draw('%s: new: {"size":%s, "location":%s }' % \
+        #                  (self.title_text,
+        #                   str(size),
+        #                   str(location))
+        #                 )
         
         if hasattr(self, "on_init"):
             self.on_init()
@@ -39,9 +40,9 @@ class NeonApp:
             self.x+self.w, self.y+self.h),
             color=(0.1, 0.1, 0.1)
         )
-        self.title.x = self.x+4
-        self.title.y = self.y+self.h+24
-        self.title.draw()
+        #self.title.x = self.x+4
+        #self.title.y = self.y+self.h+24
+        #self.title.draw()
         
         # Draw the window itself
         self.draw_polygon((
@@ -62,17 +63,20 @@ class NeonApp:
         pyglet.graphics.draw(amount, shape,
             (format, points)
         )
-        #self.network_draw('%s: draw_object: {"shape":%s, "points":%s, "format":%s, "amount":%i, "color":%s}' % \
-        #                  (self.title_text,
-        #                   shape,
-        #                   str(points),
-        #                   '"%s"' % format,
-        #                   amount,
-        #                   str(color))
-        #                 )
+        neon.NODE.network_cmd('%s: draw_object: {"shape":%s, "points":%s, "format":"%s", "amount":%i, "color":%s}' % \
+                          (self.title_text,
+                           shape,
+                           str(points),
+                           format,
+                           amount,
+                           str(color))
+                         )
         
-    def network_draw(self, message):
-        for host in self.parent.nodes.keys():
-            if host != platform.node()+".local":
-                neon.network.send_network_data(message, (host, 9999))
-        
+    def send_app_config(self):
+        print "sending config"
+        neon.NODE.network_cmd('%s: __init__: {"title":"%s", "size":%s, "location":%s}' % \
+                          (self.title_text,
+                           self.title_text,
+                           str((self.w, self.h)),
+                           str((self.x, self.y)))
+                         )

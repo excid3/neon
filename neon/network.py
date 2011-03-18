@@ -23,9 +23,8 @@ class UDPHandler(SocketServer.BaseRequestHandler):
             
             # Package command and arguments
             data = (command,args)
-            
+
             # Append it to the dictionary
-            print window, data
             if window in queue: queue[window].append(data)
             else:               queue[window] = [data]
         

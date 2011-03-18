@@ -9,7 +9,7 @@ import network
 from app import NeonApp
 
 HOST, PORT = "", 9999
-
+NODE = None
 
 class RenderNode:
     def __init__(self, nodes):
@@ -30,6 +30,9 @@ class RenderNode:
         
         pyglet.clock.schedule_interval(self.update, 1/120.0)
         self.set_callbacks()
+        
+        global NODE
+        NODE = self
 
 
     def update(self, dt):
@@ -37,6 +40,7 @@ class RenderNode:
             app.update(dt)
 
     def new_app(self, title="Untitled Window", size=(800, 600), location=(0,0), app_type=NeonApp):
+        print "Adding %s" % title
         self.running_apps.append((title, app_type(self, title, size, location)))
     
     
@@ -68,6 +72,10 @@ class RenderNode:
 
     # Initialize window callbacks
     def on_draw(self):
+        # cache a copy of network objects
+        network_objects = network.queue.copy()
+        network.queue.clear()
+        
         self.window.clear()
         
         # Draw backgrounds
@@ -84,11 +92,11 @@ class RenderNode:
                 app.on_draw() # Draw custom content
 
             # Network shapes
-            if name in network.queue:
-                for command, args in network.queue[name]:
+            if name in network_objects:
+                for command, args in network_objects[name]:
 
                     # Can we run this command on the application?
-                    if hasattr(app, command):
+                    if command != '__init__' and hasattr(app, command):
 
                         if 'points' in args:
                             pts = []
@@ -98,9 +106,35 @@ class RenderNode:
                             args["points"] = pts
                         
                         getattr(app, command)(**args)
+                    else:
+                        print "Unknown command for %s: %s" % (name, command)
     
-        network.queue.clear()
+                # Delete the network commands we've used
+                del network_objects[name]
+        
+        # If there is anything left in the queue, we must not have the app running here
+        for key, value in network_objects.items():
+        
+            created = False
             
+            # Create a new window based upon that info
+            for command, args in value:
+                if command == '__init__':
+                    print "Creating local copy of %s" % args["title"]
+                    self.new_app(**args)
+                    created = True
+                    break
+                
+            if not created:
+                print "Unknown app: %s, requesting config" % key
+                self.network_cmd("%s: send_app_config: {}" % key)
+            
+
+    # Send a command to all the hosts in the cluster
+    def network_cmd(self, message):
+        for host in self.nodes.keys():
+            if host != platform.node()+".local":
+                neon.network.send_network_data(message, (host, 9999))
 
     def on_mouse_press(self, x, y, button, modifiers):
 
