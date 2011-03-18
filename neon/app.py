@@ -63,7 +63,8 @@ class NeonApp:
         pyglet.graphics.draw(amount, shape,
             (format, points)
         )
-        neon.NODE.network_cmd('%s: draw_object: {"shape":%s, "points":%s, "format":"%s", "amount":%i, "color":%s}' % \
+        if self.__class__ != NeonApp:
+            neon.NODE.network_cmd('%s: draw_object: {"shape":%s, "points":%s, "format":"%s", "amount":%i, "color":%s}' % \
                           (self.title_text,
                            shape,
                            str(points),
