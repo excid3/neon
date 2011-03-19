@@ -6,19 +6,12 @@ import neon
 class NeonApp:
     def __init__(self, parent, title="Untitled Window", size=(800, 600), location=(0,0)):
         #self.parent = parent
-        self.title = None#pyglet.text.Label(title, font_name="Arial", font_size=16, anchor_x="left", anchor_y="top")
+        self.title = None #pyglet.text.Label(title, font_name="Arial", font_size=16, anchor_x="left", anchor_y="top")
         self.title_text = title
         self.w, self.h = size
         self.set_location(*location)
         self.dt = 0
         self.widgets = []
-        
-        #self.send_app_config()
-        #self.network_draw('%s: new: {"size":%s, "location":%s }' % \
-        #                  (self.title_text,
-        #                   str(size),
-        #                   str(location))
-        #                 )
         
         if hasattr(self, "on_init"):
             self.on_init()
@@ -29,7 +22,6 @@ class NeonApp:
     def set_location(self, x, y):
         self.x = x
         self.y = y
-
         
     def _draw(self):
         # Draw the window title
@@ -38,7 +30,8 @@ class NeonApp:
             self.x, self.y+self.h+24,
             self.x+self.w, self.y+self.h+24,
             self.x+self.w, self.y+self.h),
-            color=(0.1, 0.1, 0.1)
+            color=(0.1, 0.1, 0.1),
+            broadcast=False # This is drawn remotely with the fake app
         )
         #self.title.x = self.x+4
         #self.title.y = self.y+self.h+24
@@ -49,21 +42,22 @@ class NeonApp:
             self.x, self.y,
             self.x, self.y+self.h,
             self.x+self.w, self.y+self.h,
-            self.x+self.w, self.y)
+            self.x+self.w, self.y),
+            broadcast=False# This is drawn remotely with the fake app
         )
 
-    def draw_polygon(self, points, format="v2i", amount=4, color=(1.0,1.0,1.0)):
-        self.draw_object(pyglet.gl.GL_POLYGON, points, format, amount, color)
+    def draw_polygon(self, points, format="v2i", amount=4, color=(1.0,1.0,1.0), broadcast=True):
+        self.draw_object(pyglet.gl.GL_POLYGON, points, format, amount, color, broadcast)
 
-    def draw_line(self, points, format="v2i", amount=2, color=(1.0, 1.0, 1.0)):
-        self.draw_object(pyglet.gl.GL_LINES, points, format, amount, color)
+    def draw_line(self, points, format="v2i", amount=2, color=(1.0, 1.0, 1.0), broadcast=True):
+        self.draw_object(pyglet.gl.GL_LINES, points, format, amount, color, broadcast)
         
-    def draw_object(self, shape, points, format, amount, color):
+    def draw_object(self, shape, points, format, amount, color, broadcast=True):
         pyglet.gl.glColor3f(*color)
         pyglet.graphics.draw(amount, shape,
             (format, points)
         )
-        if self.__class__ != NeonApp:
+        if broadcast and self.__class__ != NeonApp: #TODO: Make these FakeApp for cloned apps
             neon.NODE.network_cmd('%s: draw_object: {"shape":%s, "points":%s, "format":"%s", "amount":%i, "color":%s}' % \
                           (self.title_text,
                            shape,
@@ -74,6 +68,9 @@ class NeonApp:
                          )
         
     def send_app_config(self):
+        if self.__class__ == neon.app.NeonApp: #TODO: Make these FakeApp for cloned apps
+            return
+            
         print "sending config"
         neon.NODE.network_cmd('%s: __init__: {"title":"%s", "size":%s, "location":%s}' % \
                           (self.title_text,

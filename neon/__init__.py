@@ -26,7 +26,7 @@ class RenderNode:
 
         # Used for configuring the location of the screen rendering
         self.window = pyglet.window.Window(fullscreen=True)
-        pyglet.gl.glTranslatef(self.x, -self.y, 0)
+        pyglet.gl.glTranslatef(-self.x, -self.y, 0)
         
         pyglet.clock.schedule_interval(self.update, 1/120.0)
         self.set_callbacks()
@@ -98,12 +98,13 @@ class RenderNode:
                     # Can we run this command on the application?
                     if command != '__init__' and hasattr(app, command):
 
-                        if 'points' in args:
-                            pts = []
-                            for x,y in zip(args["points"][::2], args["points"][1::2]):
-                                pts.append(x+app.x)
-                                pts.append(y+app.y)
-                            args["points"] = pts
+                        #TODO: Translate coordinates so that app never has to know the relative coordinates
+                        #if 'points' in args:
+                        #    pts = []
+                        #    for x,y in zip(args["points"][::2], args["points"][1::2]):
+                        #        pts.append(x+app.x)
+                        #        pts.append(y+app.y)
+                        #    args["points"] = pts
                         
                         getattr(app, command)(**args)
                     else:
@@ -137,30 +138,28 @@ class RenderNode:
                 neon.network.send_network_data(message, (host, 9999))
 
     def on_mouse_press(self, x, y, button, modifiers):
-
         for name, app in reversed(self.running_apps):
-
+        
             # Find the app that is currently being focused
-            if app.x <= x <= app.x+app.w and \
-                app.y+app.h <= y <= app.y+app.h+24:
-                self.focused_app = app
-
+            if app.x <= x + self.x <= app.x+app.w and \
+                app.y+app.h <= y + self.y <= app.y+app.h+24:
+                self.focused_app = [name, app]
+                
                 # Move item to end of list, this way it's draw on top
                 self.running_apps.remove((name, app))
                 self.running_apps.append((name, app))
                 
-               
     def on_mouse_release(self, x, y, button, modifiers):
         self.focused_app = None
-
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
 
         # If an app is focused, let's drag it and the widgets inside of it
         if self.focused_app:
-        
-            self.focused_app.set_location(self.focused_app.x + dx, self.focused_app.y + dy)
+            new_x, new_y = self.focused_app[1].x + dx, self.focused_app[1].y + dy
+            self.focused_app[1].set_location(new_x, new_y)
+            self.network_cmd('%s: set_location: {"x":%i, "y":%i}' % (self.focused_app[0], new_x, new_y))
             
-            for widget in self.focused_app.widgets:
+            for widget in self.focused_app[1].widgets:
                 widget.x = widget.x + dx
                 widget.y = widget.y + dy
