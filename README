@@ -1,0 +1,32 @@
+NEON Distributed Window Manager
+===============================
+
+Neon is a distributed window manager with the intent to make cluster application development more efficient and considerably easier to develop. Being written in Python, this tool is also cross platform, compatible with Linux, OSX, and Windows.
+
+Original Author: Chris Oliver <chris@excid3.com>
+
+Requirements
+------------
+Windows, Linux, or OSX boxes
+Synergy - http://synergy-foss.org/
+Python 2.x - http://python.org/
+Pyglet - http://www.pyglet.org/
+
+Instructions
+------------
+NEON requires Synergy (for mouse sharing between computers), Python and Pyglet (for OpenGL).
+
+On Ubuntu, installation is simple (Python is already installed):
+  - Open terminal
+  - sudo apt-get install synergy python-pyglet
+  - Configure synergy to start and connect on boot
+  
+Windows and OSX users can install binaries.
+
+Configuration
+-------------
+Neon provides flexible configuration and launching of applications. A configuration dictionary of nodes is sent to the RenderNode instance to configure the node's communication between other render nodes. You can add applications with the new_app method which accepts window name, size, location, and the class of the application which to run. See graphics.py for an example.
+
+A RenderNode is a graphics node who displays graphics during execution. Any other nodes in the network who are simply generating graphics for other nodes may send the traffic across UDP to the node directly in the following format (As seen in client.py):
+  "WINDOW NAME: function_name: {parameters in dictionary format}"
+

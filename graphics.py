@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+#
+# This is an example script for configuring and running an app across a cluster
+#
+# A RenderNode is a machine on the network that will render graphics. Apps can
+# be applied to a render node, where Neon will instanciate and execute the app.
+#
+# Here we have cluster-3 launch the application across the network after setup
+# of the RenderNodes. When we are ready, we call start_server and Neon will
+# launch the graphics and UPD threads.
 
 import platform
 

@@ -2,6 +2,7 @@ import random
 from neon import NeonApp
 
 class GraphApp(NeonApp):
+    """This is a simple example application that draws 6 moving bar graphs"""
 
     def on_init(self):
         self.graphs = [400, 1000, 600, 900, 800, 1200]
@@ -20,10 +21,8 @@ class GraphApp(NeonApp):
             elif v > self.h: v = self.h
             self.graphs[i] = v
 
-        
         # GRAPH!
         for i, v in enumerate(self.graphs):
-        
             self.draw_polygon((
                 self.x + 525*i + 200, self.y,
                 self.x + 525*i + 200, self.y + v,
