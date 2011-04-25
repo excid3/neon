@@ -164,6 +164,11 @@ class RenderNode:
                 self.running_apps.remove((name, app))
                 self.running_apps.append((name, app))
 
+            # Determine if mouse press was inside the window itself and
+            # broadcast it out
+
+            return
+
     def on_mouse_release(self, x, y, button, modifiers):
         """Called every time a mouse button is released. This is used for the
         end of dragging to unfocus the app that was selected while dragging."""

@@ -20,7 +20,7 @@ On Ubuntu, installation is simple (Python is already installed):
   - Open terminal
   - sudo apt-get install synergy python-pyglet
   - Configure synergy to start and connect on boot
-  
+
 Windows and OSX users can install binaries.
 
 Configuration
@@ -29,4 +29,3 @@ Neon provides flexible configuration and launching of applications. A configurat
 
 A RenderNode is a graphics node who displays graphics during execution. Any other nodes in the network who are simply generating graphics for other nodes may send the traffic across UDP to the node directly in the following format (As seen in client.py):
   "WINDOW NAME: function_name: {parameters in dictionary format}"
-

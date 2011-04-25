@@ -19,8 +19,8 @@ nodes = {
           "cluster-2.local": { "location": (2560, 2048), "size": (2560, 1024) },
           "cluster-3.local": { "location": (0, 1024),    "size": (2560, 1024) },
           "cluster-4.local": { "location": (2560, 1024), "size": (2560, 1024) },
-          "cluster-5.local": { "location": (0, 0),    "size": (2560, 1024) },
-          "cluster-6.local": { "location": (2560, 0), "size": (2560, 1024) },
+          "cluster-5.local": { "location": (0, 0),       "size": (2560, 1024) },
+          "cluster-6.local": { "location": (2560, 0),    "size": (2560, 1024) },
         }
 
 r = RenderNode(nodes)
